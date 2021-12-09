@@ -26,7 +26,6 @@ def csv_to_excel(fileIn, fileOut):
 
 
 def ExtractTxt(canvasText, UPI, Score):
-    counterX = 4
     # Step 2 Extract data from txt file
     with open(canvasText) as fp:
         contents = fp.read()
@@ -36,34 +35,30 @@ def ExtractTxt(canvasText, UPI, Score):
                 Score.append(int(entry.split(' ')[2]))
         except Exception as e:
             print(e)
-        counterX += 1
 
 
 # Step 3 Add grades to the Excel sheet
 def AutoMarking(wb, ws, row_count, UPI, Score, fileOut):
     # Check if upi matches
-    counter = 4
+    UPI_index = 4
     for cols in range(4, row_count):
         try:
-            if UPI[counter] == ws['C' + str(cols)].value:
+            if UPI[UPI_index] == ws['C' + str(cols)].value:
                 # Add score
-                ws['F' + str(cols)].value = Score[counter]
+                ws['F' + str(cols)].value = Score[UPI_index]
                 # Align left
                 ws['F' + str(cols)].alignment = Alignment(horizontal='left')
-
-                print('\nUPI: ' + str(UPI[counter]) + ', Score: ' + str(Score[counter]))
-                print('Checking UPI: ' + str(UPI[counter]) + ' for C' + str(cols))
-                print('Adding' + ' score ' + str(Score[counter]) + ' for F' + str(cols) + '\n')
-
-                # Increment counter
-                counter += 1
+                print('\nUPI: ' + str(UPI[UPI_index]) + ', Score: ' + str(Score[UPI_index]))
+                print('Checking UPI: ' + str(UPI[UPI_index]) + ' for C' + str(cols))
+                print('Adding' + ' score ' + str(Score[UPI_index]) + ' for F' + str(cols) + '\n')
+                UPI_index += 1
 
         except Exception as e:
             print(e)
             break
 
     wb.save(fileOut)
-    print('Marking completed for ' + str(counter - 4) + ' student(s)')
+    print('Marking completed for ' + str(UPI_index - 4) + ' student(s)')
 
 
 def main():
@@ -82,17 +77,13 @@ def main():
     wb = load_workbook(fileOut)
     ws = wb.active
 
-    # Get total rows and columns
+    # Get total rows
     sheet = wb.worksheets[0]
     row_count = sheet.max_row
-    column_count = sheet.max_column
-    print('row: ' + str(row_count))
-    print('col: ' + str(column_count))
 
     # Extract data from txt file
     ExtractTxt(canvasText, UPI, Score)
-    print(UPI)
-    print(Score)
+    print(str(UPI) + '\n' + str(Score))
 
     #  Add grades to the Excel sheet
     AutoMarking(wb, ws, row_count, UPI, Score, fileOut)
